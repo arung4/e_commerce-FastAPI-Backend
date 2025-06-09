@@ -51,6 +51,59 @@ def get_all_products(db:Session , current_user: User, skip : int, limit:int):
        }
 
 
-       
-       
+def get_product_by_id(db: Session, product_id:int, current_user: User):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="User not authorized")
+    
+    product = db.query(Product).filter(Product.id == product_id).first()
+    
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    return {
+        "message": "Product fetched successfully",
+        "user": product
+    }
 
+def update_product(db: Session, product_id:int, updated_data: ProductUpdate, current_user: User):   
+     
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="User not authorized")
+
+    product = db.query(Product).filter(Product.id == product_id).first()
+
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    # Update fields
+    product.name = updated_data.name
+    product.description = updated_data.description
+    product.price = updated_data.price
+    product.stock = updated_data.stock
+    product.category = updated_data.category
+    product.image_url = updated_data.image_url
+
+    db.commit()
+    db.refresh(product)
+
+    return {
+        "message": "Product updated successfully",
+        "user": product
+    }
+
+def delete_product(db: Session, product_id: int, current_user: User): 
+   
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="User not authorized")
+
+    product = db.query(Product).filter(Product.id == product_id).first()
+
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    db.delete(product)
+    db.commit()
+
+    return {
+        "message": "Product deleted successfully"
+    }
