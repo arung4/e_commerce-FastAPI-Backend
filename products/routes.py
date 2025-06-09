@@ -8,7 +8,7 @@ from auth.models import User
 from .crud import create_product , get_all_products , get_product_by_id , update_product , delete_product
 
 
-router = APIRouter(prefix="/admin/products", tags=["Product Management"])
+router = APIRouter(prefix="/admin/products", tags=["Product Management-ADMIN"])
 
 # Add a new product
 @router.post("/", response_model=ProductResponse)
