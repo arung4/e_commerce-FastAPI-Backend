@@ -35,3 +35,22 @@ def create_product(db: Session, product_details: ProductCreate, current_user: Us
         "user": new_product
     }
 
+def get_all_products(db:Session , current_user: User, skip : int, limit:int):
+       
+       if current_user.role != "admin": 
+        raise HTTPException(status_code=403, detail="User not authorized")
+       
+       prodcuts = db.query(Product).offset(skip).limit(limit).all()
+
+       if not prodcuts: 
+           raise HTTPException(status_code =500 , details = "Something went wrong while fetching records")
+       
+       return {
+           "message": "Products fetched successfully", 
+           "data": prodcuts
+       }
+
+
+       
+       
+

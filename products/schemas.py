@@ -85,3 +85,10 @@ class ProductResponse(BaseModel):
 
     class Config: 
         orm_mode = True
+
+class AllProducts(BaseModel): 
+    message: str
+    data: list[ProductComplete]
+
+    class Config: 
+        orm_mode = True
