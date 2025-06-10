@@ -6,13 +6,26 @@ from fastapi import HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 
 
-def get_user(db: Session, user_id: int):
+def get_user(db: Session, user_id: int,current_user:User):
+
+    if not current_user: 
+        raise HTTPException(status_code=401, detail = "User not authenticated")
+    
+    if not current_user.role == "admin": 
+        raise HTTPException(status_code =403, detail = "user not authorized")
+    
     return db.query(User).filter(User.id == user_id).first()
 
-def get_user_by_email(db: Session, email: str):
-    return db.query(User).filter(User.email == email).first()
+# def get_user_by_email(db: Session, email: str):
+#     return db.query(User).filter(User.email == email).first()
 
-def get_users(db: Session, skip: int = 0, limit: int = 10):
+def get_users(db: Session, current_user:User,skip: int = 0, limit: int = 10):
+
+    if not current_user: 
+        raise HTTPException(status_code=401, detail = "User not authenticated")
+    if not current_user.role == "admin": 
+        raise HTTPException(status_code =403, detail = "user not authorized")
+    
     return db.query(User).offset(skip).limit(limit).all()
 
 

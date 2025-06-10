@@ -5,7 +5,7 @@ from config.database import get_db
 from .schemas import ProductCreate,ProductResponse,ProductUpdate , AllProducts
 from .models import Product
 from auth.models import User
-from .crud import create_product , get_all_products , get_product_by_id , update_product , delete_product
+from .crud import create_product , get_all_products , get_product_by_id , update_product , delete_product , list_public_products, search_products_by_keyword
 
 
 router = APIRouter(prefix="/admin/products", tags=["Product Management-ADMIN"])
@@ -21,7 +21,7 @@ async def products_fetch_endpoint(db: Session = Depends(get_db), current_user: U
     return get_all_products(db,current_user, skip = skip, limit=limit)
 
 
-# Get Product by ID
+# Get Product by ID 
 @router.get("/{product_id}", response_model=ProductResponse)
 async def get_product_endpoint(
     product_id: int = Path(..., gt=0), # required path parameters , greater than > 0
@@ -49,7 +49,4 @@ async def delete_product_endpoint(
 ):
     return delete_product(db, product_id, current_user)
 
-
-       
-       
 

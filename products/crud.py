@@ -52,8 +52,9 @@ def get_all_products(db:Session , current_user: User, skip : int, limit:int):
 
 
 def get_product_by_id(db: Session, product_id:int, current_user: User):
-    if current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="User not authorized")
+
+    if not current_user:
+        raise HTTPException(status_code=401, detail="User not authenticated")
     
     product = db.query(Product).filter(Product.id == product_id).first()
     
@@ -107,3 +108,61 @@ def delete_product(db: Session, product_id: int, current_user: User):
     return {
         "message": "Product deleted successfully"
     }
+
+
+# Public API functions 
+
+def list_public_products(db: Session, current_user:User,
+                         category:str | None,
+                         min_price:float | None,
+                         max_price:float | None,
+                         sort_by:str,
+                         page:int,
+                         page_size:int):
+    if not current_user:
+       raise HTTPException(status_code = 401, detail = "User not authenticated")
+    
+    query = db.query(Product)
+
+    if category:
+        query = query.filter(Product.category.ilike(f"%{category}%"))
+
+    if min_price is not None:
+        query = query.filter(Product.price >= min_price)
+
+    if max_price is not None:
+        query = query.filter(Product.price <= max_price)
+
+    if sort_by == "price":
+        query = query.order_by(Product.price)
+    elif sort_by == "name":
+        query = query.order_by(Product.name)
+    elif sort_by == "category":
+        query = query.order_by(Product.category)
+
+    offset = (page -1) * page_size
+
+    products = query.offset(offset).limit(page_size).all()
+
+    return {
+        "message": "Products fetched successfully",
+        "data": products
+    }
+
+
+def search_products_by_keyword(db: Session , current_user:User, keyword:str ):
+    
+    if not current_user: 
+        raise HTTPException(status_code = 401, detail = "User not authenticated")
+    
+    products = db.query(Product).filter(
+        Product.name.ilike(f"%{keyword}%") |
+        Product.description.ilike(f"%{keyword}%") |
+        Product.category.ilike(f"%{keyword}%")
+    ).all()
+    return {
+        "message": "Products fetched successfully",
+        "data": products
+    }
+
+

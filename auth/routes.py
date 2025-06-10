@@ -4,6 +4,8 @@ from fastapi import APIRouter , Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from config.database import  get_db
 from .crud import create_user , get_users ,get_user, login
+from .utils import get_current_user
+from .schemas import User
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -26,12 +28,12 @@ async def create_login_endpoint(login_data: UserLogin, db : Session = Depends(ge
 
 
 @router.get("/users/{user_id}", response_model=UserResponse)
-async def read_user(user_id,db: Session = Depends(get_db)): 
-    return get_user(db,user_id)
+async def read_user(user_id,db: Session = Depends(get_db), current_user:User = Depends(get_current_user)): 
+    return get_user(db,user_id,current_user)
 
 @router.get("/users/", response_model=list[UserResponse])
-async def read_users(db: Session = Depends(get_db),skip: int = 0, limit: int = 100 ):
-    return get_users(db, skip=skip, limit=limit)
+async def read_users(db: Session = Depends(get_db), current_user: User = Depends(get_current_user), skip: int = 0, limit: int = 100 ):
+    return get_users(db,current_user, skip=skip, limit=limit)
 
 
     

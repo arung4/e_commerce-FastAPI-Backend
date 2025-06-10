@@ -18,7 +18,7 @@ ALGORITHM = os.getenv("JWT_ALGORITHM")
 ACCESS_TOKEN_EXPIRY_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRY_MINUTES",30))
 
 
-# 1. Password Hashing 
+# 1. Password Hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hash_password(password:str) -> str:  
