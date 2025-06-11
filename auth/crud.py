@@ -1,9 +1,10 @@
 from sqlalchemy.orm import Session
 from .models import User, UserRole
-from .schemas import UserCreate , UserLogin
+from .schemas import UserCreate , UserLogin , ForgotPasswordRequest, ResePasswordRequest
 from .utils import hash_password , verfiy_password, create_jwt_token
 from fastapi import HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
+from middlewares.utils import send_email
 
 
 def get_user(db: Session, user_id: int,current_user:User):
@@ -85,3 +86,15 @@ def login(db: Session, login_data: OAuth2PasswordRequestForm ):
     
 
     
+def forgot_password(email:str, db: Session):
+    
+    user = db.query(User).filter(User.email == email).first()
+
+    if not user: 
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    
+
+
+def reset_password(request: ResePasswordRequest, db: Session):
+    pass

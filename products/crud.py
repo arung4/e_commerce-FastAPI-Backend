@@ -9,6 +9,9 @@ from auth.models import User
 
 def create_product(db: Session, product_details: ProductCreate, current_user: User):
 
+    if not current_user:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+
     if current_user.role != "admin": 
         raise HTTPException(status_code=403, detail="User not authorized")
     
@@ -37,17 +40,18 @@ def create_product(db: Session, product_details: ProductCreate, current_user: Us
 
 def get_all_products(db:Session , current_user: User, skip : int, limit:int):
        
+       if not current_user:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+       
        if current_user.role != "admin": 
         raise HTTPException(status_code=403, detail="User not authorized")
        
-       prodcuts = db.query(Product).offset(skip).limit(limit).all()
+       products = db.query(Product).filter(Product.admin_id == current_user.id).offset(skip).limit(limit).all()
 
-       if not prodcuts: 
-           raise HTTPException(status_code =500 , details = "Something went wrong while fetching records")
-       
+     
        return {
            "message": "Products fetched successfully", 
-           "data": prodcuts
+           "data": products
        }
 
 
@@ -56,7 +60,16 @@ def get_product_by_id(db: Session, product_id:int, current_user: User):
     if not current_user:
         raise HTTPException(status_code=401, detail="User not authenticated")
     
-    product = db.query(Product).filter(Product.id == product_id).first()
+    if current_user.role != "admin": 
+        raise HTTPException(status_code=403, detail="User not authorized")
+    
+    products = db.query(Product).filter(Product.admin_id == current_user.id).all()
+
+    product=None
+    for pro in products:
+        if pro.id == product_id:
+            product = pro
+            break
     
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -66,12 +79,22 @@ def get_product_by_id(db: Session, product_id:int, current_user: User):
         "user": product
     }
 
-def update_product(db: Session, product_id:int, updated_data: ProductUpdate, current_user: User):   
+def update_product(db: Session, product_id:int, updated_data: ProductUpdate, current_user: User):  
+
+    if not current_user:
+        raise HTTPException(status_code=401, detail="User not authenticated") 
      
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="User not authorized")
 
-    product = db.query(Product).filter(Product.id == product_id).first()
+    products = db.query(Product).filter(Product.admin_id == current_user.id).all()
+
+    
+    product=None
+    for pro in products:
+        if pro.id == product_id:
+            product = pro
+            break
 
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -93,11 +116,20 @@ def update_product(db: Session, product_id:int, updated_data: ProductUpdate, cur
     }
 
 def delete_product(db: Session, product_id: int, current_user: User): 
+
+    if not current_user:
+        raise HTTPException(status_code=401, detail="User not authenticated")
    
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="User not authorized")
 
-    product = db.query(Product).filter(Product.id == product_id).first()
+    products = db.query(Product).filter(Product.admin_id == current_user.id).all()
+    
+    product=None
+    for pro in products:
+        if pro.id == product_id:
+            product = pro
+            break
 
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -112,15 +144,13 @@ def delete_product(db: Session, product_id: int, current_user: User):
 
 # Public API functions 
 
-def list_public_products(db: Session, current_user:User,
+def list_public_products(db: Session,
                          category:str | None,
                          min_price:float | None,
                          max_price:float | None,
                          sort_by:str,
                          page:int,
                          page_size:int):
-    if not current_user:
-       raise HTTPException(status_code = 401, detail = "User not authenticated")
     
     query = db.query(Product)
 
@@ -150,10 +180,8 @@ def list_public_products(db: Session, current_user:User,
     }
 
 
-def search_products_by_keyword(db: Session , current_user:User, keyword:str ):
+def search_products_by_keyword(db: Session ,  keyword:str ):
     
-    if not current_user: 
-        raise HTTPException(status_code = 401, detail = "User not authenticated")
     
     products = db.query(Product).filter(
         Product.name.ilike(f"%{keyword}%") |
@@ -166,3 +194,16 @@ def search_products_by_keyword(db: Session , current_user:User, keyword:str ):
     }
 
 
+
+def get_product_by_id_public(db: Session, product_id:int):
+
+    
+    product = db.query(Product).filter(Product.id == product_id).first()
+    
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    return {
+        "message": "Product fetched successfully",
+        "user": product
+    }

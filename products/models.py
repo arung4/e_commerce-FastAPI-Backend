@@ -20,3 +20,7 @@ class Product(Base):
 
     # relationship with admin(user) - for the Pytho orm code , that objects(products and users) are related
     admin = relationship("User",back_populates="products")
+
+    carts = relationship("Cart",back_populates="product")
+
+    order_items = relationship("OrderItem", back_populates = "product")
