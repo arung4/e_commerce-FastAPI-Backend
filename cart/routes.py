@@ -29,7 +29,7 @@ async def view_cart(
 
 
 # Update a cart
-@router.put("/{product_id}", status_code=200)
+@router.put("/", status_code=200)
 async def update_cart_quantity(
     product_id: int,
     quantity: int,
@@ -40,7 +40,7 @@ async def update_cart_quantity(
 
 
 # Remove a cart
-@router.delete("/{product_id}", response_model=str)
+@router.delete("/{product_id}", status_code = 200)
 async def remove_product_from_cart(
     product_id: int,
     db: Session = Depends(get_db),

@@ -23,7 +23,7 @@ from .schemas import User, ForgotPasswordRequest, ResetPasswordRequest
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
-@router.post("/signup", response_model=UserWithMessage)
+@router.post("/signup", response_model=UserWithMessage, status_code = 201)
 async def create_user_endpoint(user: UserCreate, db: Session = Depends(get_db)):
     return create_user(db=db, user=user)
 

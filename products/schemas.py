@@ -17,7 +17,7 @@ class ProductBase(BaseModel):
             raise ValueError("Name cannot be empty")
         if len(v) < 3:
             raise ValueError("Name length must be greater than 3 characters.")
-        if len(v) > 25:
+        if len(v) > 35:
             raise ValueError("Name length must be less-than 25 characters")
         if not re.match(r"^[A-Za-z0-9\s\-@%]+$", v):
             raise ValueError(

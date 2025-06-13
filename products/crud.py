@@ -186,6 +186,9 @@ def search_products_by_keyword(db: Session, keyword: str):
         )
         .all()
     )
+    if not products: 
+        raise HTTPException(status_code =404, detail = "Products not exists")
+    
     return {"message": "Products fetched successfully", "data": products}
 
 
