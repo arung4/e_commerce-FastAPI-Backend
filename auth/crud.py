@@ -128,6 +128,7 @@ def forgot_password(email:str, db: Session):
 
 
 def reset_password(request: ResetPasswordRequest, db: Session):
+
     token = request.token 
     new_password = request.new_password
 
@@ -151,6 +152,7 @@ def reset_password(request: ResetPasswordRequest, db: Session):
         raise HTTPException(status_code=404, detail="User not found")
     
     user.password = hash_password(new_password)
+    # Mark token field used as True
     token_data.used = True
     db.commit()
 
