@@ -1,10 +1,14 @@
 from sqlalchemy.orm import Session
-from .models import User, UserRole
-from .schemas import UserCreate , UserLogin , ForgotPasswordRequest, ResePasswordRequest
+from .models import User, UserRole , PasswordResetToken
+from .schemas import UserCreate , UserLogin , ResetPasswordRequest
 from .utils import hash_password , verfiy_password, create_jwt_token
 from fastapi import HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from middlewares.utils import send_email
+from datetime import datetime, timedelta
+import secrets
+import hashlib
+
 
 
 def get_user(db: Session, user_id: int,current_user:User):
@@ -92,9 +96,68 @@ def forgot_password(email:str, db: Session):
 
     if not user: 
         raise HTTPException(status_code=404, detail="User not found")
-    
-    
+
+    # generate token 
+    token = secrets.token_urlsafe(32)    
+    hashed_token = hashlib.sha256(token.encode()).hexdigest()
+
+    expiration = datetime.now() + timedelta(minutes=15)
+
+    # store token securely in DB
+    reset_entry = PasswordResetToken(
+        user_id = user.id,
+        token = hashed_token, 
+        expiration_time = expiration,
+        used = False
+    )
+    db.add(reset_entry)
+    db.commit()
+    db.refresh(reset_entry)
+
+    reset_link = f"http://localhost:3000/reset-password?token={token}"
+
+    send_email(
+        to_email = user.email,
+        subject = "Reset your password",
+        body = f"Click the following link to reset your password:\n\n{reset_link}\n\nThis link will expire in 15 minutes."
+    )
+
+    return {
+        "message" : "Reset password email sent successfully"
+    }
 
 
-def reset_password(request: ResePasswordRequest, db: Session):
-    pass
+def reset_password(request: ResetPasswordRequest, db: Session):
+    token = request.token 
+    new_password = request.new_password
+
+    hashed_token = hashlib.sha256(token.encode()).hexdigest()
+
+    # Extract the token data from DB
+    token_data = db.query(PasswordResetToken).filter(
+        PasswordResetToken.token ==hashed_token,
+        PasswordResetToken.used == False
+    ).first()
+
+    if not token_data: 
+        raise HTTPException(status_code = 400, detail = "Invalid or expired token")
+    
+    if token_data.expiration_time < datetime.now() : 
+        raise HTTPException(status_code = 400, detail = "Token expired")
+    
+    user = db.query(User).filter(User.id == token_data.user_id).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    user.password = hash_password(new_password)
+    token_data.used = True
+    db.commit()
+
+
+    return {
+        "message" : "Password reset successfully"
+    }
+
+
+

@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from config.database import  get_db
 from .crud import create_user , get_users ,get_user, login , forgot_password, reset_password
 from .utils import get_current_user
-from .schemas import User , ForgotPasswordRequest, ResePasswordRequest
+from .schemas import User , ForgotPasswordRequest, ResetPasswordRequest
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -18,12 +18,12 @@ async def create_user_endpoint(user: UserCreate, db: Session = Depends(get_db)):
 async def create_login_endpoint(login_data: OAuth2PasswordRequestForm = Depends(), db : Session = Depends(get_db)): 
     return login(db=db,login_data = login_data)
 
-@router.post("/forgot-password", response_model=UserLoginResponse)
+@router.post("/forgot-password", status_code = 200)
 async def forgot_password_endpoint(request:ForgotPasswordRequest, db : Session = Depends(get_db)): 
     return forgot_password(request.email,db)
 
-@router.post("/reset-password", response_model=UserLoginResponse)
-async def reset_password_endpoint(request: ResePasswordRequest, db : Session = Depends(get_db)): 
+@router.post("/reset-password", status_code = 200)
+async def reset_password_endpoint(request: ResetPasswordRequest, db : Session = Depends(get_db)): 
    return reset_password(request,db)
 
 
