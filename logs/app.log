@@ -1,0 +1,100 @@
+2025-06-15 18:03:36,934 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "E:\fastapi\fastapi-env\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-06-15 18:07:17,025 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "E:\fastapi\fastapi-env\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-06-15 18:07:20,198 - fastapi-app - INFO - Successfully fetched the Users data: 
+2025-06-15 18:08:15,749 - fastapi-app - INFO - Successfully fetched the User data: 
+2025-06-15 18:11:46,613 - fastapi-app - INFO - S*****uccessfully fetched the User data*****
+2025-06-15 18:11:58,028 - fastapi-app - INFO - *****Successfully fetched the User data*****
+2025-06-15 18:43:51,037 - fastapi-app - ERROR -  ***** WRONG EMAIL *****
+2025-06-15 18:47:57,310 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "E:\fastapi\fastapi-env\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-06-15 18:47:57,553 - fastapi-app - INFO - ***** CREATING JWT TOKEN *****
+2025-06-15 18:47:57,557 - fastapi-app - INFO - ***** SENDING TOKEN TO RESPONSE *****
+2025-06-15 19:32:00,609 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "E:\fastapi\fastapi-env\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-06-15 19:32:00,842 - fastapi-app - INFO - ***** CREATING JWT TOKEN *****
+2025-06-15 19:32:00,849 - fastapi-app - INFO - ***** SENDING TOKEN TO RESPONSE *****
+2025-06-15 19:32:14,472 - fastapi-app - INFO - *****Successfully fetched the Users data*****
+2025-06-15 19:32:30,655 - fastapi-app - INFO - **** PRODUCTS FETCHED SUCCESS *****
+2025-06-15 19:32:50,516 - fastapi-app - ERROR -  ***** PRODUCT NOT FOUDN WITH THIS ID *****
+2025-06-15 19:33:27,498 - fastapi-app - ERROR -  ***** PRODUCT NOT FOUND WITH THIS ID *****
+2025-06-15 19:33:40,882 - fastapi-app - INFO - ***** FILTERING PRODUCTS *****
+2025-06-15 19:33:40,887 - fastapi-app - INFO - **** PRODUCT FETCHED *****
+2025-06-15 19:33:55,284 - fastapi-app - ERROR - ***** PRODUCT NOT FOUND WITH THIS KEYWORD *****
+2025-06-15 19:34:09,325 - fastapi-app - ERROR - ***** ADMIN NOT ALLOWED *****
+2025-06-16 09:00:28,575 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "E:\fastapi\fastapi-env\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-06-16 09:00:28,815 - fastapi-app - INFO - ***** CREATING JWT TOKEN *****
+2025-06-16 09:00:28,842 - fastapi-app - INFO - ***** SENDING TOKEN TO RESPONSE *****
+2025-06-16 09:02:22,569 - fastapi-app - INFO - ***** CREATING JWT TOKEN *****
+2025-06-16 09:02:22,569 - fastapi-app - INFO - ***** SENDING TOKEN TO RESPONSE *****
+2025-06-16 09:02:27,717 - fastapi-app - INFO - ***** CREATING PRODUCT ENTRY *****
+2025-06-16 09:02:27,737 - fastapi-app - INFO - ***** PRODUCT SAVED IN DB *****
+2025-06-16 09:03:30,014 - fastapi-app - INFO - ***** CREATING PRODUCT ENTRY *****
+2025-06-16 09:03:30,030 - fastapi-app - INFO - ***** PRODUCT SAVED IN DB *****
+2025-06-16 09:04:48,498 - fastapi-app - INFO - ***** CREATING PRODUCT ENTRY *****
+2025-06-16 09:04:48,513 - fastapi-app - INFO - ***** PRODUCT SAVED IN DB *****
+2025-06-16 09:08:37,229 - fastapi-app - INFO - ***** CREATING PRODUCT ENTRY *****
+2025-06-16 09:08:37,236 - fastapi-app - INFO - ***** PRODUCT SAVED IN DB *****
+2025-06-16 09:09:21,492 - fastapi-app - INFO - ***** CREATING PRODUCT ENTRY *****
+2025-06-16 09:09:21,502 - fastapi-app - INFO - ***** PRODUCT SAVED IN DB *****
+2025-06-16 09:09:57,223 - fastapi-app - INFO - **** PRODUCTS FETCHED SUCCESS *****
+2025-06-16 09:10:20,613 - fastapi-app - ERROR -  ***** PRODUCT NOT FOUND WITH THIS ID *****
+2025-06-16 09:10:26,423 - fastapi-app - ERROR -  ***** PRODUCT NOT FOUND WITH THIS ID *****
+2025-06-16 09:11:00,018 - fastapi-app - INFO - ***** FILTERING PRODUCTS *****
+2025-06-16 09:11:00,027 - fastapi-app - INFO - **** PRODUCT FETCHED *****
+2025-06-16 09:11:53,172 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "E:\fastapi\fastapi-env\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-06-16 09:11:53,420 - fastapi-app - INFO - ***** CREATING JWT TOKEN *****
+2025-06-16 09:11:53,421 - fastapi-app - INFO - ***** SENDING TOKEN TO RESPONSE *****
+2025-06-16 09:12:47,770 - fastapi-app - INFO - ***** CREATING PRODUCT ENTRY *****
+2025-06-16 09:12:47,779 - fastapi-app - INFO - ***** PRODUCT SAVED IN DB *****
+2025-06-16 09:13:14,428 - fastapi-app - INFO - ***** CREATING PRODUCT ENTRY *****
+2025-06-16 09:13:14,435 - fastapi-app - INFO - ***** PRODUCT SAVED IN DB *****
+2025-06-16 09:13:37,344 - fastapi-app - INFO - ***** CREATING PRODUCT ENTRY *****
+2025-06-16 09:13:37,353 - fastapi-app - INFO - ***** PRODUCT SAVED IN DB *****
+2025-06-16 09:14:01,548 - fastapi-app - INFO - ***** CREATING PRODUCT ENTRY *****
+2025-06-16 09:14:01,557 - fastapi-app - INFO - ***** PRODUCT SAVED IN DB *****
+2025-06-16 09:14:20,820 - fastapi-app - INFO - **** PRODUCTS FETCHED SUCCESS *****
+2025-06-16 09:14:41,903 - fastapi-app - ERROR -  ***** PRODUCT NOT FOUND WITH THIS ID *****
+2025-06-16 09:15:04,083 - fastapi-app - ERROR -  ***** PRODUCT NOT FOUND WITH THIS ID *****
+2025-06-16 09:15:15,708 - fastapi-app - INFO - ***** FILTERING PRODUCTS *****
+2025-06-16 09:15:15,710 - fastapi-app - INFO - **** PRODUCT FETCHED *****
+2025-06-16 09:16:24,461 - fastapi-app - INFO - ***** FILTERING PRODUCTS *****
+2025-06-16 09:16:24,464 - fastapi-app - INFO - **** PRODUCT FETCHED *****
+2025-06-16 10:07:30,664 - fastapi-app - ERROR - *****User already exist with this email*****
+2025-06-16 10:10:26,002 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "E:\fastapi\fastapi-env\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-06-16 10:10:26,260 - fastapi-app - INFO - ***** CREATING JWT TOKEN *****
+2025-06-16 10:10:26,265 - fastapi-app - INFO - ***** SENDING TOKEN TO RESPONSE *****
+2025-06-16 10:10:37,627 - fastapi-app - INFO - ***** CREATING PRODUCT ENTRY *****
+2025-06-16 10:10:37,642 - fastapi-app - INFO - ***** PRODUCT SAVED IN DB *****
