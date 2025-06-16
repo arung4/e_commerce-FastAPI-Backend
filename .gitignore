@@ -4,3 +4,4 @@ fastapi-env
 .env
 .env.*
 !.env.example
+.docx

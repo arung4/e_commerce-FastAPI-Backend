@@ -8,15 +8,22 @@ from middlewares.utils import send_email
 from datetime import datetime, timedelta
 import secrets
 import hashlib
+from config.logging import logger
+from exceptions.custom_exception import UserAlreadyExistsException,UserNotAllowedException,UserNotExistsException,UserNotFoundException
 
 
 def get_user(db: Session, user_id: int, current_user: User):
 
     if not current_user:
-        raise HTTPException(status_code=401, detail="User not authenticated")
+        logger.error("*****User not authenticated, token not present*****")
+        raise UserNotFoundException()
+        
 
     if not current_user.role == "admin":
-        raise HTTPException(status_code=403, detail="user not authorized")
+        logger.error("*****User is not admin*****")
+        raise UserNotAllowedException()
+    
+    logger.info("*****Successfully fetched the User data*****")
 
     return db.query(User).filter(User.id == user_id).first()
 
@@ -24,9 +31,15 @@ def get_user(db: Session, user_id: int, current_user: User):
 def get_users(db: Session, current_user: User, skip: int = 0, limit: int = 10):
 
     if not current_user:
-        raise HTTPException(status_code=401, detail="User not authenticated")
+        logger.error("*****User not authenticated, token not present*****")
+        raise UserNotFoundException()
+
     if not current_user.role == "admin":
-        raise HTTPException(status_code=403, detail="user not authorized")
+        logger.error("*****User is not admin*****")
+        raise UserNotAllowedException()
+
+    
+    logger.info("*****Successfully fetched the Users data*****")
 
     return db.query(User).offset(skip).limit(limit).all()
 
@@ -37,9 +50,10 @@ def create_user(db: Session, user: UserCreate):
     existing_user = db.query(User).filter(User.email == user.email).first()
 
     if existing_user:
-        raise HTTPException(
-            status_code=400, detail="User alredy exists with this email"
-        )
+        logger.error("*****User already exist with this email*****")
+        raise UserAlreadyExistsException()
+
+    logger.info(" ******** HASHING THE PASSWORD *****")
 
     # 2. Hash the password
     hashed_password = hash_password(user.password)
@@ -50,6 +64,7 @@ def create_user(db: Session, user: UserCreate):
     except ValueError:
         role = UserRole.user
 
+    logger.info("*****  CREATING USER ENTITY *****")
     # Create user instance
     new_user = User(
         name=user.name,
@@ -61,6 +76,7 @@ def create_user(db: Session, user: UserCreate):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+    logger.info("***** USER SAVED IN DB *****")
     return {"message": "User created successfully", "user": new_user}
 
 
@@ -68,17 +84,19 @@ def login(db: Session, login_data: OAuth2PasswordRequestForm):
     user = db.query(User).filter(User.email == login_data.username).first()
 
     if not user:
-        raise HTTPException(
-            status_code=400, detail="User not exists with this email and password"
-        )
+        logger.error(" ***** WRONG EMAIL *****")
+        raise UserNotExistsException()
 
     if not verfiy_password(login_data.password, user.password):
+        logger.error("***** WRONG PASSWORD ENTERED *****")
         raise HTTPException(status_code=400, detail="Wrong password")
+
+    logger.info("***** CREATING JWT TOKEN *****")
 
     token = create_jwt_token(
         data={"user_id": user.id, "email": user.email, "role": user.role.value}
     )
-
+    logger.info("***** SENDING TOKEN TO RESPONSE *****")
     return {
         "message": "Login successful",
         "access_token": token,
@@ -90,14 +108,17 @@ def forgot_password(email: str, db: Session):
     user = db.query(User).filter(User.email == email).first()
 
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        logger.error("***** NO USER WITH THIS EMAIL *****")
+        raise UserNotExistsException()
 
+    logger.info("***** CREATING TOKEN ******")
     # generate token
     token = secrets.token_urlsafe(32)
     hashed_token = hashlib.sha256(token.encode()).hexdigest()
 
     expiration = datetime.now() + timedelta(minutes=15)
 
+    logger.info("***** STORING RESET TOKEN IN DB WITH ITS EXPIRY DATE (15 MINUTES) *****")
     # store token securely in DB
     reset_entry = PasswordResetToken(
         user_id=user.id, token=hashed_token, expiration_time=expiration, used=False
@@ -105,7 +126,7 @@ def forgot_password(email: str, db: Session):
     db.add(reset_entry)
     db.commit()
     db.refresh(reset_entry)
-
+    logger.info("***** ADDING TOKEN TO RESET LINK *****")
     reset_link = f"http://localhost:3000/reset-password?token={token}"
 
     send_email(
@@ -113,7 +134,7 @@ def forgot_password(email: str, db: Session):
         subject="Reset your password",
         body=f"Click the following link to reset your password:\n\n{reset_link}\n\nThis link will expire in 15 minutes.",
     )
-
+    logger.info("***** RESET PASSWORD EMAIL SENT *****")
     return {"message": "Reset password email sent successfully"}
 
 
@@ -134,16 +155,20 @@ def reset_password(request: ResetPasswordRequest, db: Session):
     )
 
     if not token_data:
+        logger.error("***** TOKEN NOT FOUND IN DB *****")
         raise HTTPException(status_code=400, detail="Invalid or expired token")
 
     if token_data.expiration_time < datetime.now():
+        logger.error("***** TOKEN EXPIRED *****")
         raise HTTPException(status_code=400, detail="Token expired")
 
     user = db.query(User).filter(User.id == token_data.user_id).first()
 
     if not user:
+        logger.error("***** USER NOT FOUND *****")
         raise HTTPException(status_code=404, detail="User not found")
 
+    logger.info("***** SAVING NEW PASSWORD TO USER DB")
     user.password = hash_password(new_password)
     # Mark token field used as True
     token_data.used = True

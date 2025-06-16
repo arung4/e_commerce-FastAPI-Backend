@@ -87,7 +87,7 @@ class ProductComplete(ProductBase):
 
 class ProductResponse(BaseModel):
     message: str
-    user: ProductComplete
+    data: ProductComplete
 
     class Config:
         orm_mode = True

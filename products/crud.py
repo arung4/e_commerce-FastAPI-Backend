@@ -3,23 +3,28 @@ from .models import Product
 from .schemas import ProductCreate, ProductUpdate, ProductResponse
 from fastapi import HTTPException
 from auth.models import User
-
+from config.logging import logger 
+from exceptions.custom_exception import UserNotFoundException, UserNotAllowedException, ProductAlreadyExistsException
 
 def create_product(db: Session, product_details: ProductCreate, current_user: User):
 
     if not current_user:
-        raise HTTPException(status_code=401, detail="User not authenticated")
+        logger.error(" USER NOT FOUND ****")
+        raise UserNotFoundException()
 
     if current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="User not authorized")
+        logger.error(" ****** USER NOT ALLOWED *****")
+        raise UserNotAllowedException()
 
     existing_product = (
         db.query(Product).filter(Product.name == product_details.name).first()
     )
 
     if existing_product:
-        raise HTTPException(status_code=400, detail="Product exist with this name")
+        logger.error("**** PRODUCT ALREADY THEIR *****")
+        raise ProductAlreadyExistsException()
 
+    logger.info("***** CREATING PRODUCT ENTRY *****")
     new_product = Product(
         name=product_details.name,
         description=product_details.description,
@@ -33,16 +38,19 @@ def create_product(db: Session, product_details: ProductCreate, current_user: Us
     db.commit()
     db.refresh(new_product)
 
-    return {"message": "Product added successfully", "user": new_product}
+    logger.info("***** PRODUCT SAVED IN DB *****")
+    return {"message": "Product added successfully", "data": new_product}
 
 
 def get_all_products(db: Session, current_user: User, skip: int, limit: int):
 
     if not current_user:
-        raise HTTPException(status_code=401, detail="User not authenticated")
+        logger.error(" USER NOT FOUND ****")
+        raise UserNotFoundException()
 
     if current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="User not authorized")
+        logger.error(" ****** NOT ALLOWED *****")
+        raise UserNotAllowedException()
 
     products = (
         db.query(Product)
@@ -51,16 +59,18 @@ def get_all_products(db: Session, current_user: User, skip: int, limit: int):
         .limit(limit)
         .all()
     )
-
+    logger.info("**** PRODUCTS FETCHED SUCCESS *****")
     return {"message": "Products fetched successfully", "data": products}
 
 
 def get_product_by_id(db: Session, product_id: int, current_user: User):
 
     if not current_user:
+        logger.error(" USER NOT FOUND ****")
         raise HTTPException(status_code=401, detail="User not authenticated")
 
     if current_user.role != "admin":
+        logger.error(" ****** NOT ALLOWED *****")
         raise HTTPException(status_code=403, detail="User not authorized")
 
     products = db.query(Product).filter(Product.admin_id == current_user.id).all()
@@ -72,9 +82,10 @@ def get_product_by_id(db: Session, product_id: int, current_user: User):
             break
 
     if not product:
+        logger.error(" ***** PRODUCT NOT FOUND WITH THIS ID *****")
         raise HTTPException(status_code=404, detail="Product not found")
 
-    return {"message": "Product fetched successfully", "user": product}
+    return {"message": "Product fetched successfully", "data": product}
 
 
 def update_product(
@@ -82,9 +93,11 @@ def update_product(
 ):
 
     if not current_user:
+        logger.error(" USER NOT FOUND ****")
         raise HTTPException(status_code=401, detail="User not authenticated")
 
     if current_user.role != "admin":
+        logger.error(" ****** NOT ALLOWED *****")
         raise HTTPException(status_code=403, detail="User not authorized")
 
     products = db.query(Product).filter(Product.admin_id == current_user.id).all()
@@ -96,6 +109,7 @@ def update_product(
             break
 
     if not product:
+        logger.error("***** PRODUCT NOT FOUND WITH THIS ID *****")
         raise HTTPException(status_code=404, detail="Product not found")
 
     # Update fields
@@ -109,15 +123,18 @@ def update_product(
     db.commit()
     db.refresh(product)
 
-    return {"message": "Product updated successfully", "user": product}
+    logger.info("***** PRODUCT UPDATED *****")
+    return {"message": "Product updated successfully", "data": product}
 
 
 def delete_product(db: Session, product_id: int, current_user: User):
 
     if not current_user:
+        logger.error(" USER NOT FOUND ****")
         raise HTTPException(status_code=401, detail="User not authenticated")
 
     if current_user.role != "admin":
+        logger.error(" ****** NOT ALLOWED *****")
         raise HTTPException(status_code=403, detail="User not authorized")
 
     products = db.query(Product).filter(Product.admin_id == current_user.id).all()
@@ -129,11 +146,13 @@ def delete_product(db: Session, product_id: int, current_user: User):
             break
 
     if not product:
+        logger.error("***** PRODUCT NOT FOUND WITH THIS ID *****")
         raise HTTPException(status_code=404, detail="Product not found")
 
     db.delete(product)
     db.commit()
 
+    logger.info(" ***** PRODUCT DELETED *****")
     return {"message": "Product deleted successfully"}
 
 
@@ -152,6 +171,7 @@ def list_public_products(
 
     query = db.query(Product)
 
+    logger.info("***** FILTERING PRODUCTS *****")
     if category:
         query = query.filter(Product.category.ilike(f"%{category}%"))
 
@@ -172,6 +192,8 @@ def list_public_products(
 
     products = query.offset(offset).limit(page_size).all()
 
+    logger.info("**** PRODUCT FETCHED *****")
+
     return {"message": "Products fetched successfully", "data": products}
 
 
@@ -187,6 +209,7 @@ def search_products_by_keyword(db: Session, keyword: str):
         .all()
     )
     if not products: 
+        logger.error("***** PRODUCT NOT FOUND WITH THIS KEYWORD *****")
         raise HTTPException(status_code =404, detail = "Products not exists")
     
     return {"message": "Products fetched successfully", "data": products}
@@ -197,6 +220,7 @@ def get_product_by_id_public(db: Session, product_id: int):
     product = db.query(Product).filter(Product.id == product_id).first()
 
     if not product:
+        logger.error("***** PRODUCT NOT FOUND WITH THIS ID *****")
         raise HTTPException(status_code=404, detail="Product not found")
 
-    return {"message": "Product fetched successfully", "user": product}
+    return {"message": "Product fetched successfully", "data": product}
