@@ -2,18 +2,22 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, Depends
 from .models import Order, OrderItem
 from auth.models import User
-
+from config.logging import logger 
+from exceptions.custom_exception import UserNotFoundException, AdminNotAllowedException, OrderNotFoundException
 
 def get_orders(db: Session, current_user: User):
 
     if not current_user:
-        raise HTTPException(status_code=401, detail="User not authenticated")
+        logger.error(" ***** USER NOT FOUND *****")
+        raise UserNotFoundException()
 
     if current_user.role != "user":
-        raise HTTPException(status_code=403, detail="Only users can view orders")
+        logger.error("***** ADMIN NOT ALLOWED *****")
+        raise AdminNotAllowedException()
 
     orders = db.query(Order).filter(Order.user_id == current_user.id).all()
 
+    logger.info("***** ORDERES FETCHED *****")
     return [
         {
             "order_id": order.id,
@@ -28,10 +32,12 @@ def get_orders(db: Session, current_user: User):
 def get_order_detail(order_id: int, db: Session, current_user: User):
 
     if not current_user:
-        raise HTTPException(status_code=401, detail="User not authenticated")
+        logger.error(" ***** USER NOT FOUND *****")
+        raise UserNotFoundException()
 
     if current_user.role != "user":
-        raise HTTPException(status_code=403, detail="Only users can view orders")
+        logger.error("***** ADMIN NOT ALLOWED *****")
+        raise AdminNotAllowedException()
 
     order = (
         db.query(Order)
@@ -40,10 +46,12 @@ def get_order_detail(order_id: int, db: Session, current_user: User):
     )
 
     if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
+        logger.error("***** ORDER NOT FOUND *****")
+        raise OrderNotFoundException()
 
     items = db.query(OrderItem).filter(OrderItem.order_id == order_id).all()
 
+    logger.info("***** ORDER DETAILS FETCHED *****")
     return {
         "order_id": order.id,
         "date": order.created_at,

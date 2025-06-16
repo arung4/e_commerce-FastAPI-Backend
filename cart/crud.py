@@ -3,15 +3,18 @@ from fastapi import HTTPException, status
 from .models import Cart
 from sqlalchemy.orm import Session
 from auth.models import User
-
+from config.logging import logger 
+from exceptions.custom_exception import UserNotFoundException, AdminNotAllowedException, ProductNotFoundCartException
 
 def add_to_cart(cart_data: CartCreate, db: Session, current_user: User):
 
     if not current_user:
-        raise HTTPException(status_code=401, detail="User not authenticated")
+        logger.error("***** USER NOT FOUND ******")
+        raise UserNotFoundException()
 
     if current_user.role != "user":
-        raise HTTPException(status_code=403, detail="user not authorized")
+        logger.error("***** ADMIN ROLE NOT ALLOWED TO ADD PRODUCT *****")
+        raise AdminNotAllowedException()
 
     # Check if product already in cart
     existing_item = (
@@ -23,9 +26,11 @@ def add_to_cart(cart_data: CartCreate, db: Session, current_user: User):
     )
 
     if existing_item:
+        logger.info("***** PRODUCT ALREADY THEIR IN CART , UPDATING QUANTITY *****")
         # Update quantity if exists
         existing_item.quantity += cart_data.quantity
     else:
+        logger.info("***** ADDING PRODUCT TO CART *****")
         # Create new cart item
         new_cart = Cart(
             user_id=current_user.id,
@@ -43,11 +48,14 @@ def add_to_cart(cart_data: CartCreate, db: Session, current_user: User):
 def get_user_cart(db: Session, current_user: User):
 
     if not current_user:
-        raise HTTPException(status_code=401, detail="User not authenticated")
+        logger.error("***** USER NOT FOUND *****")
+        raise UserNotFoundException()
 
     if current_user.role != "user":
-        raise HTTPException(status_code=403, detail="user not authorized")
-
+        logger.error("***** ADMIN NOT ALLOWED *****")
+        raise AdminNotAllowedException()
+    
+    logger.info(" **** FETCHING USER CART ITEMS *****")
     cart_items = db.query(Cart).filter(Cart.user_id == current_user.id).all()
 
     return {"data": cart_items}
@@ -56,10 +64,12 @@ def get_user_cart(db: Session, current_user: User):
 def update_cart_item(product_id: int, quantity: int, db: Session, current_user: User):
 
     if not current_user:
-        raise HTTPException(status_code=401, detail="User not authenticated")
+        logger.error("***** USER NOT FOUND *****")
+        raise UserNotFoundException()
 
     if current_user.role != "user":
-        raise HTTPException(status_code=403, detail="user not authorized")
+        logger.error("***** ADMIN NOT ALLOWED *****")
+        raise AdminNotAllowedException()
 
     cart_item = (
         db.query(Cart)
@@ -68,24 +78,27 @@ def update_cart_item(product_id: int, quantity: int, db: Session, current_user: 
     )
 
     if not cart_item:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Item not found in cart"
-        )
+        logger.error("***** ITEM NOT FOUND IN CART *****")
+        raise ProductNotFoundCartException()
 
+    logger.info("***** UPDATING PRODUCT QUANTITY IN CART *****")
     cart_item.quantity = quantity
     db.commit()
     db.refresh(cart_item)
 
+    logger.info("***** PRODUCT UPDATED IN CART *****")
     return {"message": "Cart updated successfully", "data": cart_item}
 
 
 def remove_from_cart(product_id: int, db: Session, current_user: User):
 
     if not current_user:
-        raise HTTPException(status_code=401, detail="User not authenticated")
+        logger.error("***** USER NOT FOUND *****")
+        raise UserNotFoundException()
 
     if current_user.role != "user":
-        raise HTTPException(status_code=403, detail="user not authorized")
+        logger.error("***** ADMIN NOT ALLOWED *****")
+        raise AdminNotAllowedException()
 
     cart_item = (
         db.query(Cart)
@@ -94,11 +107,10 @@ def remove_from_cart(product_id: int, db: Session, current_user: User):
     )
 
     if not cart_item:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Item not found in cart"
-        )
+        logger.error("***** ITEM NOT FOUND IN CART *****")
+        raise ProductNotFoundCartException()
 
     db.delete(cart_item)
     db.commit()
-
+    logger.info("***** PRODUCT REMOVED FROM CART *****")
     return {"Item removed from cart"}
