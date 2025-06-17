@@ -12,7 +12,7 @@ from config.logging import logger
 from exceptions.custom_exception import UserAlreadyExistsException,UserNotAllowedException,UserNotExistsException,UserNotFoundException
 
 
-def get_user(db: Session, user_id: int, current_user: User):
+async def get_user(db: Session, user_id: int, current_user: User):
 
     if not current_user:
         logger.error("*****User not authenticated, token not present*****")
@@ -28,7 +28,7 @@ def get_user(db: Session, user_id: int, current_user: User):
     return db.query(User).filter(User.id == user_id).first()
 
 
-def get_users(db: Session, current_user: User, skip: int = 0, limit: int = 10):
+async def get_users(db: Session, current_user: User, skip: int = 0, limit: int = 10):
 
     if not current_user:
         logger.error("*****User not authenticated, token not present*****")
@@ -44,7 +44,7 @@ def get_users(db: Session, current_user: User, skip: int = 0, limit: int = 10):
     return db.query(User).offset(skip).limit(limit).all()
 
 
-def create_user(db: Session, user: UserCreate):
+async def create_user(db: Session, user: UserCreate):
 
     # 1. Check if user alreadyexists
     existing_user = db.query(User).filter(User.email == user.email).first()
@@ -80,7 +80,7 @@ def create_user(db: Session, user: UserCreate):
     return {"message": "User created successfully", "user": new_user}
 
 
-def login(db: Session, login_data: OAuth2PasswordRequestForm):
+async def login(db: Session, login_data: OAuth2PasswordRequestForm):
     user = db.query(User).filter(User.email == login_data.username).first()
 
     if not user:
@@ -103,7 +103,7 @@ def login(db: Session, login_data: OAuth2PasswordRequestForm):
     }
 
 
-def forgot_password(email: str, db: Session):
+async def forgot_password(email: str, db: Session):
 
     user = db.query(User).filter(User.email == email).first()
 
@@ -138,7 +138,7 @@ def forgot_password(email: str, db: Session):
     return {"message": "Reset password email sent successfully"}
 
 
-def reset_password(request: ResetPasswordRequest, db: Session):
+async def reset_password(request: ResetPasswordRequest, db: Session):
 
     token = request.token
     new_password = request.new_password

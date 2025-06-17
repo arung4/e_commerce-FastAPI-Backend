@@ -13,4 +13,4 @@ router = APIRouter(prefix="/checkout", tags=["Payment Checkout"])
 async def create_checkout(
     db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):
-    return create_order(db, current_user)
+    return await create_order(db, current_user)

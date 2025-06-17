@@ -8,21 +8,21 @@ from datetime import datetime
 from config.logging import logger 
 from exceptions.custom_exception import UserNotFoundException, AdminNotAllowedException, ProductNotFoundCartException
 
-def create_order(db: Session, current_user: User):
+async def create_order(db: Session, current_user: User):
 
     if not current_user:
         logger.error("***** USER NOT FOUND *****")
         raise UserNotFoundException()
 
     if current_user.role != "user":
-        logger.error(" ***** ADMIN NOT ALLOWED *****")
+        logger.error(" ***** ADMIN NOT ALLOWED *****") # add details of request api 
         raise AdminNotAllowedException()
 
     # Fetch users cart items
     cart_items = db.query(Cart).filter(Cart.user_id == current_user.id).all()
 
     if not cart_items:
-        logger.error("**** ITEMS NOT FOUND IN CART *****")
+        logger.error("**** ITEMS NOT FOUND IN CART *****") # add exceptions logging 
         raise HTTPException(status_code=400, detail="Cart is empty")
 
     total_amount = 0.0

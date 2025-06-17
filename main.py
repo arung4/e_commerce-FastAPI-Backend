@@ -9,7 +9,6 @@ from cart.routes import router as cart_router
 from checkout.routes import router as checkout_router
 from orders.routes import router as order_router
 
-# import uvicorn
 
 app = FastAPI()
 
@@ -30,5 +29,4 @@ def app_start():
     return {"data": "Welcome to My E-Commerce App"}
 
 
-# if __name__ == "__main__":
-#     uvicorn.run(app,host="127.0.0.1",port=9000)
+

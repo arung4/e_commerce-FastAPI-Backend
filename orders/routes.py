@@ -13,7 +13,7 @@ router = APIRouter(prefix="/orders", tags=["Orders"])
 async def get_order_history(
     db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):
-    return get_orders(db, current_user)
+    return await get_orders(db, current_user)
 
 
 @router.get("/{order_id}", status_code=200)
@@ -22,4 +22,4 @@ async def get_order(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return get_order_detail(order_id, db, current_user)
+    return await get_order_detail(order_id, db, current_user)

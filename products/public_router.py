@@ -27,7 +27,7 @@ async def list_products(
     page_size: int = Query(10, ge=1),
 ):
 
-    return list_public_products(
+    return await list_public_products(
         db, category, min_price, max_price, sort_by, page, page_size
     )
 
@@ -36,7 +36,7 @@ async def list_products(
 async def search_products(
     keyword: str = Query(..., min_length=2), db: Session = Depends(get_db)
 ):
-    return search_products_by_keyword(db, keyword)
+    return await search_products_by_keyword(db, keyword)
 
 
 # Get Product by ID
@@ -45,4 +45,4 @@ async def get_product_endpoint(
     product_id: int = Path(..., gt=0),  # required path parameters , greater than > 0
     db: Session = Depends(get_db),
 ):
-    return get_product_by_id_public(db, product_id)
+    return await get_product_by_id_public(db, product_id)

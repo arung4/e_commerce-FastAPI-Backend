@@ -4,9 +4,10 @@ from .models import Cart
 from sqlalchemy.orm import Session
 from auth.models import User
 from config.logging import logger 
-from exceptions.custom_exception import UserNotFoundException, AdminNotAllowedException, ProductNotFoundCartException
+from products.models import Product
+from exceptions.custom_exception import UserNotFoundException, AdminNotAllowedException, ProductNotFoundCartException , ProductStockUnavailableException, ProductNotFoundException
 
-def add_to_cart(cart_data: CartCreate, db: Session, current_user: User):
+async def add_to_cart(cart_data: CartCreate, db: Session, current_user: User):
 
     if not current_user:
         logger.error("***** USER NOT FOUND ******")
@@ -15,6 +16,15 @@ def add_to_cart(cart_data: CartCreate, db: Session, current_user: User):
     if current_user.role != "user":
         logger.error("***** ADMIN ROLE NOT ALLOWED TO ADD PRODUCT *****")
         raise AdminNotAllowedException()
+
+    # check product exits or not 
+    product = db.query(Product).filter(Product.id == cart_data.product_id).first()
+
+    if not product:
+        raise ProductNotFoundException()
+    
+    if product.stock < cart_data.quantity:
+        raise ProductStockUnavailableException()
 
     # Check if product already in cart
     existing_item = (
@@ -27,6 +37,8 @@ def add_to_cart(cart_data: CartCreate, db: Session, current_user: User):
 
     if existing_item:
         logger.info("***** PRODUCT ALREADY THEIR IN CART , UPDATING QUANTITY *****")
+        if product.stock < cart_data.quantity:
+            raise ProductStockUnavailableException()
         # Update quantity if exists
         existing_item.quantity += cart_data.quantity
     else:
@@ -39,13 +51,14 @@ def add_to_cart(cart_data: CartCreate, db: Session, current_user: User):
         )
 
     db.add(new_cart)
+    product.stock -= cart_data.quantity
     db.commit()
     db.refresh(new_cart)
 
     return {"message": "Product added to cart", "data": new_cart}
 
 
-def get_user_cart(db: Session, current_user: User):
+async def get_user_cart(db: Session, current_user: User):
 
     if not current_user:
         logger.error("***** USER NOT FOUND *****")
@@ -61,7 +74,7 @@ def get_user_cart(db: Session, current_user: User):
     return {"data": cart_items}
 
 
-def update_cart_item(product_id: int, quantity: int, db: Session, current_user: User):
+async def update_cart_item(product_id: int, quantity: int, db: Session, current_user: User):
 
     if not current_user:
         logger.error("***** USER NOT FOUND *****")
@@ -80,17 +93,28 @@ def update_cart_item(product_id: int, quantity: int, db: Session, current_user: 
     if not cart_item:
         logger.error("***** ITEM NOT FOUND IN CART *****")
         raise ProductNotFoundCartException()
+    
+    product = db.query(Product).filter(Product.id == product_id).first()
+    if not product:
+        raise ProductNotFoundException()
+    
+    change = quantity - cart_item.quantity
+    logger.info(f"Change Quantity: {change}")
+    if product.stock < change: 
+        raise ProductStockUnavailableException()
 
     logger.info("***** UPDATING PRODUCT QUANTITY IN CART *****")
+    product.stock -= change 
     cart_item.quantity = quantity
     db.commit()
+    logger.info(f"Product stock now : {product.stock}")
     db.refresh(cart_item)
 
     logger.info("***** PRODUCT UPDATED IN CART *****")
     return {"message": "Cart updated successfully", "data": cart_item}
 
 
-def remove_from_cart(product_id: int, db: Session, current_user: User):
+async def remove_from_cart(product_id: int, db: Session, current_user: User):
 
     if not current_user:
         logger.error("***** USER NOT FOUND *****")
@@ -109,7 +133,12 @@ def remove_from_cart(product_id: int, db: Session, current_user: User):
     if not cart_item:
         logger.error("***** ITEM NOT FOUND IN CART *****")
         raise ProductNotFoundCartException()
+    
+    product = db.query(Product).filter(Product.id == product_id).first()
+    if not product:
+        raise ProductNotFoundException()
 
+    product.stock += cart_item.quantity
     db.delete(cart_item)
     db.commit()
     logger.info("***** PRODUCT REMOVED FROM CART *****")

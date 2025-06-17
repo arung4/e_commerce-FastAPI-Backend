@@ -17,7 +17,7 @@ async def add_product_to_cart(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return add_to_cart(cart_data, db, current_user)
+    return await add_to_cart(cart_data, db, current_user)
 
 
 # View Cart
@@ -25,7 +25,7 @@ async def add_product_to_cart(
 async def view_cart(
     db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):
-    return get_user_cart(db, current_user)
+    return await get_user_cart(db, current_user)
 
 
 # Update a cart
@@ -36,7 +36,7 @@ async def update_cart_quantity(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return update_cart_item(product_id, quantity, db, current_user)
+    return await update_cart_item(product_id, quantity, db, current_user)
 
 
 # Remove a cart
@@ -46,4 +46,4 @@ async def remove_product_from_cart(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return remove_from_cart(product_id, db, current_user)
+    return await remove_from_cart(product_id, db, current_user)

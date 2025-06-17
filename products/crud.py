@@ -4,9 +4,10 @@ from .schemas import ProductCreate, ProductUpdate, ProductResponse
 from fastapi import HTTPException
 from auth.models import User
 from config.logging import logger 
-from exceptions.custom_exception import UserNotFoundException, UserNotAllowedException, ProductAlreadyExistsException
+from exceptions.custom_exception import UserNotFoundException, UserNotAllowedException, ProductAlreadyExistsException , ProductNotFoundException
 
-def create_product(db: Session, product_details: ProductCreate, current_user: User):
+
+async def create_product(db: Session, product_details: ProductCreate, current_user: User):
 
     if not current_user:
         logger.error(" USER NOT FOUND ****")
@@ -42,7 +43,7 @@ def create_product(db: Session, product_details: ProductCreate, current_user: Us
     return {"message": "Product added successfully", "data": new_product}
 
 
-def get_all_products(db: Session, current_user: User, skip: int, limit: int):
+async def get_all_products(db: Session, current_user: User, skip: int, limit: int):
 
     if not current_user:
         logger.error(" USER NOT FOUND ****")
@@ -63,15 +64,15 @@ def get_all_products(db: Session, current_user: User, skip: int, limit: int):
     return {"message": "Products fetched successfully", "data": products}
 
 
-def get_product_by_id(db: Session, product_id: int, current_user: User):
+async def get_product_by_id(db: Session, product_id: int, current_user: User):
 
     if not current_user:
         logger.error(" USER NOT FOUND ****")
-        raise HTTPException(status_code=401, detail="User not authenticated")
+        raise UserNotFoundException()
 
     if current_user.role != "admin":
-        logger.error(" ****** NOT ALLOWED *****")
-        raise HTTPException(status_code=403, detail="User not authorized")
+        logger.error(" ******USER NOT ALLOWED *****")
+        raise UserNotAllowedException()
 
     products = db.query(Product).filter(Product.admin_id == current_user.id).all()
 
@@ -83,22 +84,22 @@ def get_product_by_id(db: Session, product_id: int, current_user: User):
 
     if not product:
         logger.error(" ***** PRODUCT NOT FOUND WITH THIS ID *****")
-        raise HTTPException(status_code=404, detail="Product not found")
+        raise ProductNotFoundException()
 
     return {"message": "Product fetched successfully", "data": product}
 
 
-def update_product(
+async def update_product(
     db: Session, product_id: int, updated_data: ProductUpdate, current_user: User
 ):
 
     if not current_user:
         logger.error(" USER NOT FOUND ****")
-        raise HTTPException(status_code=401, detail="User not authenticated")
+        raise UserNotFoundException()
 
     if current_user.role != "admin":
-        logger.error(" ****** NOT ALLOWED *****")
-        raise HTTPException(status_code=403, detail="User not authorized")
+        logger.error(" ******USER NOT ALLOWED *****")
+        raise UserNotAllowedException()
 
     products = db.query(Product).filter(Product.admin_id == current_user.id).all()
 
@@ -110,7 +111,7 @@ def update_product(
 
     if not product:
         logger.error("***** PRODUCT NOT FOUND WITH THIS ID *****")
-        raise HTTPException(status_code=404, detail="Product not found")
+        raise ProductNotFoundException()
 
     # Update fields
     product.name = updated_data.name
@@ -127,15 +128,15 @@ def update_product(
     return {"message": "Product updated successfully", "data": product}
 
 
-def delete_product(db: Session, product_id: int, current_user: User):
+async def delete_product(db: Session, product_id: int, current_user: User):
 
     if not current_user:
         logger.error(" USER NOT FOUND ****")
-        raise HTTPException(status_code=401, detail="User not authenticated")
+        raise UserNotFoundException()
 
     if current_user.role != "admin":
-        logger.error(" ****** NOT ALLOWED *****")
-        raise HTTPException(status_code=403, detail="User not authorized")
+        logger.error(" ******USER NOT ALLOWED *****")
+        raise UserNotAllowedException()
 
     products = db.query(Product).filter(Product.admin_id == current_user.id).all()
 
@@ -147,7 +148,7 @@ def delete_product(db: Session, product_id: int, current_user: User):
 
     if not product:
         logger.error("***** PRODUCT NOT FOUND WITH THIS ID *****")
-        raise HTTPException(status_code=404, detail="Product not found")
+        raise ProductNotFoundException()
 
     db.delete(product)
     db.commit()
@@ -159,7 +160,7 @@ def delete_product(db: Session, product_id: int, current_user: User):
 # Public API functions
 
 
-def list_public_products(
+async def list_public_products(
     db: Session,
     category: str | None,
     min_price: float | None,
@@ -197,7 +198,7 @@ def list_public_products(
     return {"message": "Products fetched successfully", "data": products}
 
 
-def search_products_by_keyword(db: Session, keyword: str):
+async def search_products_by_keyword(db: Session, keyword: str):
 
     products = (
         db.query(Product)
@@ -215,12 +216,12 @@ def search_products_by_keyword(db: Session, keyword: str):
     return {"message": "Products fetched successfully", "data": products}
 
 
-def get_product_by_id_public(db: Session, product_id: int):
+async def get_product_by_id_public(db: Session, product_id: int):
 
     product = db.query(Product).filter(Product.id == product_id).first()
 
     if not product:
         logger.error("***** PRODUCT NOT FOUND WITH THIS ID *****")
-        raise HTTPException(status_code=404, detail="Product not found")
+        raise ProductNotFoundException()
 
     return {"message": "Product fetched successfully", "data": product}

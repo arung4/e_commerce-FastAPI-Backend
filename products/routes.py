@@ -26,7 +26,7 @@ async def product_create_endpoint(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return create_product(db, product_data, current_user)
+    return await create_product(db, product_data, current_user)
 
 
 # Get all products
@@ -37,7 +37,7 @@ async def products_fetch_endpoint(
     skip: int = 0,
     limit: int = 100,
 ):
-    return get_all_products(db, current_user, skip=skip, limit=limit)
+    return await get_all_products(db, current_user, skip=skip, limit=limit)
 
 
 # Get Product by ID
@@ -47,7 +47,7 @@ async def get_product_endpoint(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return get_product_by_id(db, product_id, current_user)
+    return await get_product_by_id(db, product_id, current_user)
 
 
 # Update Product
@@ -58,7 +58,7 @@ async def update_product_endpoint(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return update_product(db, product_id, product_data, current_user)
+    return await update_product(db, product_id, product_data, current_user)
 
 
 # Delete Product
@@ -68,4 +68,4 @@ async def delete_product_endpoint(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return delete_product(db, product_id, current_user)
+    return await delete_product(db, product_id, current_user)

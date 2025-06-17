@@ -5,7 +5,7 @@ from auth.models import User
 from config.logging import logger 
 from exceptions.custom_exception import UserNotFoundException, AdminNotAllowedException, OrderNotFoundException
 
-def get_orders(db: Session, current_user: User):
+async def get_orders(db: Session, current_user: User):
 
     if not current_user:
         logger.error(" ***** USER NOT FOUND *****")
@@ -29,7 +29,7 @@ def get_orders(db: Session, current_user: User):
     ]
 
 
-def get_order_detail(order_id: int, db: Session, current_user: User):
+async def get_order_detail(order_id: int, db: Session, current_user: User):
 
     if not current_user:
         logger.error(" ***** USER NOT FOUND *****")
