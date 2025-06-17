@@ -249,3 +249,19 @@ AttributeError: module 'bcrypt' has no attribute '__about__'
 2025-06-17 10:43:07,116 - fastapi-app - INFO - ***** SENDING TOKEN TO RESPONSE *****
 2025-06-17 10:43:08,661 - fastapi-app - INFO - ***** CREATING JWT TOKEN *****
 2025-06-17 10:43:08,662 - fastapi-app - INFO - ***** SENDING TOKEN TO RESPONSE *****
+2025-06-17 11:08:05,098 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "E:\fastapi\fastapi-env\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-06-17 11:08:05,530 - fastapi-app - INFO - ***** CREATING JWT TOKEN *****
+2025-06-17 11:08:05,539 - fastapi-app - INFO - ***** SENDING TOKEN TO RESPONSE *****
+2025-06-17 11:08:16,404 - fastapi-app - INFO - ***** CREATING TOKEN ******
+2025-06-17 11:08:16,405 - fastapi-app - INFO - ***** STORING RESET TOKEN IN DB WITH ITS EXPIRY DATE (15 MINUTES) *****
+2025-06-17 11:08:16,433 - fastapi-app - INFO - ***** ADDING TOKEN TO RESET LINK *****
+2025-06-17 11:08:21,549 - fastapi-app - INFO - ***** RESET PASSWORD EMAIL SENT *****
+2025-06-17 11:08:42,433 - fastapi-app - INFO - ***** CREATING TOKEN ******
+2025-06-17 11:08:42,433 - fastapi-app - INFO - ***** STORING RESET TOKEN IN DB WITH ITS EXPIRY DATE (15 MINUTES) *****
+2025-06-17 11:08:42,450 - fastapi-app - INFO - ***** ADDING TOKEN TO RESET LINK *****
+2025-06-17 11:08:46,532 - fastapi-app - INFO - ***** RESET PASSWORD EMAIL SENT *****

@@ -1,10 +1,13 @@
 import smtplib
 from email.message import EmailMessage
+import os 
+from dotenv import load_dotenv
 
+load_dotenv()
 
 def send_email(to_email: str, subject: str, body: str):
-    EMAIL = "noreplyfastapi123@gmail.com"
-    PASSWORD = "rngp wxyf wavi cyer"
+    EMAIL = os.getenv("EMAIL")
+    PASSWORD = os.getenv("PASSWORD")
 
     msg = EmailMessage()
     msg["Subject"] = subject
